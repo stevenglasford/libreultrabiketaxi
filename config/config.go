@@ -29,11 +29,16 @@ func C() *Config {
 func Init(file string) {
 	viper.SetConfigName(file)
 	viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+	viper.SetConfigType("yaml")
+
+	
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Error in config file: %s", err))
 	}
+	
 
 	viper.Unmarshal(&config)
 }
