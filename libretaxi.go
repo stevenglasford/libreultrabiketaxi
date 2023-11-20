@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	// "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/leonelquinteros/gotext"
 	_ "github.com/lib/pq" // important
 	"go.uber.org/ratelimit"
@@ -17,12 +17,27 @@ import (
 	"math/rand"
 	"time"
 	"net/smtp"
+	"fmt"
 )
 
 func initContext() *context.Context {
+	smtpServer := config.C().SMTP_Server
+	smtpPort := config.C().SMTP_Port
+	smtpUsername := config.C().SMTP_Username
+	smtpToken := config.C().SMTP_Token
+	receiverEmail := config.C().TEST_Receivers
+
+	log.Printf("<<<<<<Start Debug information>>>>>: \n")
+	log.Printf("SMTP Host: %s\n", smtpHost)
+	log.Printf("SMTP Port: %s\n", smtpPort)
+	log.Printf("SMTP Username: %s\n", smtpUsername)
+	log.Printf("SMTP Password: %s\n", smtpPassword)
+	log.Printf("Receiver Email: %s\n", receiverEmail)
+	
 	log.Printf("Will be using the email address for sending schedules: '%s',\n", config.C.SMTP_Username)
 	log.Printf("Using '%s' database connection string", config.C().Db_Conn_Str)
 	log.Printf("Using '%s' RabbitMQ connection string", config.C().Rabbit_Url)
+
 
 	context := &context.Context{}
 

@@ -6,7 +6,11 @@ import (
 )
 
 type Config struct {
-	Telegram_Token string
+	SMTP_Username string
+	SMTP_Token string
+	SMTP_Server string
+	SMTP_Port int64
+	TEST_Receivers string
 	Db_Conn_Str string
 	Rabbit_Url string
 	Admin_Channel_Chat_Id int64
