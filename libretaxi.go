@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	// "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/leonelquinteros/gotext"
 	_ "github.com/lib/pq" // important
 	"go.uber.org/ratelimit"
@@ -20,7 +20,7 @@ import (
 )
 
 func initContext() *context.Context {
-	log.Printf("Using '%s' telegram token\n", config.C().Telegram_Token)
+	log.Printf("Will be using the email address for sending schedules: '%s',\n", config.C.SMTP_Username)
 	log.Printf("Using '%s' database connection string", config.C().Db_Conn_Str)
 	log.Printf("Using '%s' RabbitMQ connection string", config.C().Rabbit_Url)
 
