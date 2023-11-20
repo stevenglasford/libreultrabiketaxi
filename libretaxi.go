@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	// "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/leonelquinteros/gotext"
 	_ "github.com/lib/pq" // important
 	"go.uber.org/ratelimit"
@@ -41,10 +41,10 @@ func initContext() *context.Context {
 
 	context := &context.Context{}
 
-	bot, err := tgbotapi.NewBotAPI(config.C().Telegram_Token)
-	if err != nil {
-		log.Panic(err)
-	}
+	// bot, err := tgbotapi.NewBotAPI(config.C().Telegram_Token)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 	// bot.Debug = true
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)

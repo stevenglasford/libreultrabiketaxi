@@ -7,6 +7,7 @@ import (
 	"libretaxi/objects"
 	"libretaxi/util"
 	"log"
+	"net/smtp"
 )
 
 type InitMenuHandler struct {

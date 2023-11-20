@@ -3,9 +3,6 @@ package config
 import (
 	"github.com/spf13/viper"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -13,11 +10,9 @@ type Config struct {
 	SMTP_Token string `yaml:"smtp_token"`
 	SMTP_Server string `yaml:"smtp_server"`
 	SMTP_Port int64 `yaml:"smtp_port"`
-	TEST_Receivers string
+	TEST_Receivers string `yaml:"test_receivers"`
 	Db_Conn_Str string
 	Rabbit_Url string
-	Admin_Channel_Chat_Id int64
-	Public_Channel_Chat_Id int64
 }
 
 var config Config
@@ -33,12 +28,18 @@ func Init(file string) {
 	viper.SetConfigType("yaml")
 
 	
-
-	err := viper.ReadInConfig()
-	if err != nil {
+	
+	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("Error in config file: %s", err))
 	}
-	
+
+	// smtp_username := viper.GetString("smtp_username")
+	// smtp_token := viper.GetString("smtp_token")
+	// smtp_server := viper.GetString("smtp_server")
+	// smtp_port := viper.GetInt64("smtp_port")
+	// test_receivers := viper.GetString("test_receivers")
+	// db_conn_str := viper.GetString("db_conn_str")
+	// rabbit_url := viper.GetString("rabbit_url")
 
 	viper.Unmarshal(&config)
 }
