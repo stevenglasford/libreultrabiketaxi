@@ -24,10 +24,10 @@ func (s *Sender) Handler(messageBag *rabbit.MessageBag) {
 	//   "postedAtUtc" timestamp without time zone not null default (now() at time zone 'utc')
 	// );
 
-	_, err := s.context.Bot.Send(messageBag.Message)
-	if err != nil {
-		log.Printf("Error sending Telegram message: %s\n", err)
-	}
+	// _, err := s.context.Bot.Send(messageBag.Message)
+	// if err != nil {
+	// 	log.Printf("Error sending Telegram message: %s\n", err)
+	// }
 }
 
 func (s *Sender) Start() {

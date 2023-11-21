@@ -8,7 +8,7 @@ import (
 )
 
 type Context struct {
-	Bot  *tgbotapi.BotAPI
+	// Bot  *tgbotapi.BotAPI
 	Repo *repository.Repository
 	RabbitPublish *rabbit.RabbitClient // for publishing only
 	RabbitConsume *rabbit.RabbitClient // for consuming only

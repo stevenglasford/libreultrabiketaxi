@@ -6,10 +6,10 @@ import (
 	"github.com/leonelquinteros/gotext"
 	_ "github.com/lib/pq" // important
 	"go.uber.org/ratelimit"
-	"libretaxi/callback"
+	// "libretaxi/callback"
 	"libretaxi/config"
 	"libretaxi/context"
-	"libretaxi/menu"
+	// "libretaxi/menu"
 	"libretaxi/rabbit"
 	"libretaxi/repository"
 	"libretaxi/sender"
@@ -18,6 +18,7 @@ import (
 	"time"
 	"net/smtp"
 	"fmt"
+	"strconv"
 )
 
 func initContext() *context.Context {
@@ -28,21 +29,35 @@ func initContext() *context.Context {
 	receiverEmail := config.C().TEST_Receivers
 	//This is the arbitrary max size of an email message
 	//for a Zoleo device
-	maxEmailCharacterLimit := 200
+	// maxEmailCharacterLimit := 200
 
 	log.Printf("<<<<<<Start Debug information>>>>>: \n")
-	log.Printf("SMTP Host: %s\n", smtpHost)
+	log.Printf("SMTP Host: %s\n", smtpServer)
 	log.Printf("SMTP Port: %s\n", smtpPort)
 	log.Printf("SMTP Username: %s\n", smtpUsername)
-	log.Printf("SMTP Password: %s\n", smtpPassword)
+	log.Printf("SMTP Password: %s\n", smtpToken)
 	log.Printf("Receiver Email: %s\n", receiverEmail)
 	
-	log.Printf("Will be using the email address for sending schedules: '%s',\n", config.C.SMTP_Username)
+	log.Printf("Will be using the email address for sending schedules: '%s',\n", smtpUsername)
 	log.Printf("Using '%s' database connection string", config.C().Db_Conn_Str)
 	log.Printf("Using '%s' RabbitMQ connection string", config.C().Rabbit_Url)
 
+	// test message 
+	message := []byte("To: " + receiverEmail + "\r\n" +
+					"Subject: initContext in libretaxi.go\r\n" +
+					"\r\n" +
+					"This is a test email sent from a Go program.\r\n")
 
-	context := &context.Context{}
+	auth := smtp.PlainAuth("", smtpUsername, smtpToken, smtpServer)
+
+	// Sending email.
+	
+	if err := smtp.SendMail(smtpServer+":"+ strconv.FormatInt(smtpPort, 10), auth, smtpUsername, []string{receiverEmail}, message); err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	fmt.Println("Email sent successfully")
+	// context := &context.Context{}
 
 	// bot, err := tgbotapi.NewBotAPI(config.C().Telegram_Token)
 	// if err != nil {
@@ -71,15 +86,15 @@ func main1() {
 	context.RabbitPublish = rabbit.NewRabbitClient(config.C().Rabbit_Url, "messages")
 
 	// test message 
-	message := []byte("To: " + receiverEmail + "\r\n" +
+	message := []byte("To: " + config.C().TEST_Receivers + "\r\n" +
 					"Subject: Hello from Golang!\r\n" +
 					"\r\n" +
 					"This is a test email sent from a Go program.\r\n")
 
-	auth := smtp.PlainAuth("", smtpUsername, smtpToken, smtpServer)
+	auth := smtp.PlainAuth("", config.C().SMTP_Username, config.C().SMTP_Token, config.C().SMTP_Server)
 
 	// Sending email.
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, senderEmail, []string{receiverEmail}, message)
+	err := smtp.SendMail(config.C().SMTP_Username+":"+ strconv(config.C().SMTP_Port, 10), auth, config.C().SMTP_Username, []string{config.C().TEST_Receivers}, message)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -177,8 +192,8 @@ func massAnnounce() {
 
 			locale := getLocale(languageCode)
 			link := locale.Get("main.welcome_link")
-			text := link + " 👉👉👉 /start 👈👈👈"
-			msg := tgbotapi.NewMessage(userId, text)
+			// text := link + " 👉👉👉 /start 👈👈👈"
+			// msg := tgbotapi.NewMessage(userId, text)
 
 			context.RabbitPublish.PublishTgMessage(rabbit.MessageBag{
 				Message: msg,
