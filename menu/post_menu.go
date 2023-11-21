@@ -18,30 +18,30 @@ type PostMenuHandler struct {
 	context *context.Context
 }
 
-func (handler *PostMenuHandler) postToAdminChannel(text string) {
-	msg := tgbotapi.NewMessage(handler.context.Config.Admin_Channel_Chat_Id, text)
-	if len(handler.user.Username) == 0 {
-		msg.ParseMode = "MarkdownV2"
-	}
-	banKeyboard := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("☝️ Shadow ban", fmt.Sprintf("{\"Action\":\"SHADOW_BAN\",\"Id\":%d}", handler.user.UserId)),
-		),
-	)
-	msg.ReplyMarkup = banKeyboard
+// func (handler *PostMenuHandler) postToAdminChannel(text string) {
+// 	msg := tgbotapi.NewMessage(handler.context.Config.Admin_Channel_Chat_Id, text)
+// 	if len(handler.user.Username) == 0 {
+// 		msg.ParseMode = "MarkdownV2"
+// 	}
+// 	banKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+// 		tgbotapi.NewInlineKeyboardRow(
+// 			tgbotapi.NewInlineKeyboardButtonData("☝️ Shadow ban", fmt.Sprintf("{\"Action\":\"SHADOW_BAN\",\"Id\":%d}", handler.user.UserId)),
+// 		),
+// 	)
+// 	msg.ReplyMarkup = banKeyboard
 
-	handler.context.Send(msg)
-}
+// 	handler.context.Send(msg)
+// }
 
-func (handler *PostMenuHandler) postToPublicChannel(text string) {
-	// TODO fix line below: Error sending Telegram message: Bad Request: can't parse entities: Can't find end of Italic entity at byte offset 148
-	// msg := tgbotapi.NewMessage(handler.context.Config.Public_Channel_Chat_Id, text + "\nVia 👉 @libretaxi_bot")
-	msg := tgbotapi.NewMessage(handler.context.Config.Public_Channel_Chat_Id, text)
-	if len(handler.user.Username) == 0 {
-		msg.ParseMode = "MarkdownV2"
-	}
-	handler.context.Send(msg)
-}
+// func (handler *PostMenuHandler) postToPublicChannel(text string) {
+// 	// TODO fix line below: Error sending Telegram message: Bad Request: can't parse entities: Can't find end of Italic entity at byte offset 148
+// 	// msg := tgbotapi.NewMessage(handler.context.Config.Public_Channel_Chat_Id, text + "\nVia 👉 @libretaxi_bot")
+// 	msg := tgbotapi.NewMessage(handler.context.Config.Public_Channel_Chat_Id, text)
+// 	if len(handler.user.Username) == 0 {
+// 		msg.ParseMode = "MarkdownV2"
+// 	}
+// 	handler.context.Send(msg)
+// }
 
 func (handler *PostMenuHandler) informUsersAround(lon float64, lat float64, text string, postId int64, user *objects.User) {
 	textWithContacts := ""
@@ -60,11 +60,11 @@ func (handler *PostMenuHandler) informUsersAround(lon float64, lat float64, text
 		textWithContacts = fmt.Sprintf("%s\n\n%s @%s", text, via, handler.user.Username)
 	}
 
-	// Post to the admin channel first, do not bother in case of shadow ban
-	if !handler.user.ShadowBanned {
-		handler.postToAdminChannel(textWithContacts)
-		handler.postToPublicChannel(textWithContacts)
-	}
+	// // Post to the admin channel first, do not bother in case of shadow ban
+	// if !handler.user.ShadowBanned {
+	// 	handler.postToAdminChannel(textWithContacts)
+	// 	handler.postToPublicChannel(textWithContacts)
+	// }
 
 	// In case of shadow ban, post to current user only and return
 	if handler.user.ShadowBanned {

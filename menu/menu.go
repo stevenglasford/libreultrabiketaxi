@@ -82,18 +82,18 @@ func HandleMessage(context *context.Context, userId int64, message *tgbotapi.Mes
 		previousState = user.MenuId
 		var handler Handler
 
-		switch user.MenuId {
-		case objects.Menu_Init:
-			handler = NewInitMenu()
-		case objects.Menu_AskLocation:
-			handler = NewAskLocationMenu()
-		case objects.Menu_Feed:
-			handler = NewFeedMenu()
-		case objects.Menu_Post:
-			handler = NewPostMenu()
-		default:
-			handler = nil
-		}
+		// switch user.MenuId {
+		// case objects.Menu_Init:
+		// 	handler = NewInitMenu()
+		// case objects.Menu_AskLocation:
+		// 	handler = NewAskLocationMenu()
+		// case objects.Menu_Feed:
+		// 	handler = NewFeedMenu()
+		// case objects.Menu_Post:
+		// 	handler = NewPostMenu()
+		// default:
+		// 	handler = nil
+		// }
 
 		if handler != nil {
 			handler.Handle(user, context, message)
