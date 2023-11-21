@@ -5,7 +5,7 @@ import (
 	// "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/leonelquinteros/gotext"
 	_ "github.com/lib/pq" // important
-	"go.uber.org/ratelimit"
+	// "go.uber.org/ratelimit"
 	// "libretaxi/callback"
 	"libretaxi/config"
 	"libretaxi/context"
@@ -22,6 +22,7 @@ import (
 )
 
 func initContext() *context.Context {
+	context := &context.Context{}
 	smtpServer := config.C().SMTP_Server
 	smtpPort := config.C().SMTP_Port
 	smtpUsername := config.C().SMTP_Username
@@ -94,7 +95,7 @@ func main1() {
 	auth := smtp.PlainAuth("", config.C().SMTP_Username, config.C().SMTP_Token, config.C().SMTP_Server)
 
 	// Sending email.
-	err := smtp.SendMail(config.C().SMTP_Username+":"+ strconv(config.C().SMTP_Port, 10), auth, config.C().SMTP_Username, []string{config.C().TEST_Receivers}, message)
+	err := smtp.SendMail(config.C().SMTP_Username+":"+ strconv.FormatInt(config.C().SMTP_Port, 10), auth, config.C().SMTP_Username, []string{config.C().TEST_Receivers}, message)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -162,56 +163,56 @@ func getLocale(languageCode string) *gotext.Locale {
 	return locale
 }
 
-func massAnnounce() {
-	context := &context.Context{}
-	db, err := sql.Open("postgres", config.C().Db_Conn_Str)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Print("Successfully connected to the database")
-	}
+// func massAnnounce() {
+// 	ctx := &context.Context{}
+// 	db, err := sql.Open("postgres", config.C().Db_Conn_Str)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	} else {
+// 		log.Print("Successfully connected to the database")
+// 	}
 
-	context.Repo = repository.NewRepository(db)
-	context.Config = config.C()
-	context.RabbitPublish = rabbit.NewRabbitClient(config.C().Rabbit_Url, "messages")
+// 	ctx.Repo = repository.NewRepository(db)
+// 	ctx.Config = config.C()
+// 	ctx.RabbitPublish = rabbit.NewRabbitClient(config.C().Rabbit_Url, "messages")
 
-	var userId int64
-	var languageCode string
+// 	var userId int64
+// 	var languageCode string
 
-	rows, err := db.Query("select \"userId\", \"languageCode\" from users where \"languageCode\"='pt-br'")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
+// 	rows, err := db.Query("select \"userId\", \"languageCode\" from users where \"languageCode\"='pt-br'")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer rows.Close()
 
-	rl := ratelimit.New(5) // don't load DB too much
+// 	rl := ratelimit.New(5) // don't load DB too much
 
-	for rows.Next() {
-		err := rows.Scan(&userId, &languageCode)
-		if err == nil && context.Repo.ShowCallout(userId, "pt_br_translation_announcement") {
+// 	for rows.Next() {
+// 		err := rows.Scan(&userId, &languageCode)
+// 		if err == nil && ctx.Repo.ShowCallout(userId, "pt_br_translation_announcement") {
 
-			locale := getLocale(languageCode)
-			link := locale.Get("main.welcome_link")
-			// text := link + " 👉👉👉 /start 👈👈👈"
-			// msg := tgbotapi.NewMessage(userId, text)
+// 			// locale := getLocale(languageCode)
+// 			// link := locale.Get("main.welcome_link")
+// 			// text := link + " 👉👉👉 /start 👈👈👈"
+// 			// msg := tgbotapi.NewMessage(userId, text)
 
-			context.RabbitPublish.PublishTgMessage(rabbit.MessageBag{
-				Message: msg,
-				Priority: 0, // LOWEST
-			})
+// 			// ctx.RabbitPublish.PublishTgMessage(rabbit.MessageBag{
+// 			// 	Message: msg,
+// 			// 	Priority: 0, // LOWEST
+// 			// })
 
-			log.Println("Mass sending to ", userId, languageCode)
+// 			log.Println("Mass sending to ", userId, languageCode)
 
-			context.Repo.DismissCallout(userId, "pt_br_translation_announcement")
+// 			ctx.Repo.DismissCallout(userId, "pt_br_translation_announcement")
 
-			rl.Take()
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+// 			rl.Take()
+// 		}
+// 	}
+// 	err = rows.Err()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
