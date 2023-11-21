@@ -19,6 +19,10 @@ import (
 	"net/smtp"
 	"fmt"
 	"strconv"
+	"errors"
+	"regexp"
+	"strings"
+	"unicode"
 )
 
 func initContext() *context.Context {
@@ -79,6 +83,49 @@ func initContext() *context.Context {
 	context.Repo = repository.NewRepository(db)
 	context.Config = config.C()
 	return context
+}
+
+// ValidateZOLEOMessage validates an email message based on ZOLEO standards.
+func ValidateZOLEOMessage(message string) error {
+	// Check message length
+	if len(message) > 200 {
+		return errors.New("message exceeds 200 characters")
+	}
+
+	// Check for absence of signatures or historical messages
+	// This is a basic check, might need more sophisticated logic
+	if strings.Contains(message, "---") || strings.Contains(message, "From:") {
+		return errors.New("message contains signatures or historical messages")
+	}
+
+	// Check for only basic text and emojis
+	if !isBasicTextAndEmojis(message) {
+		return errors.New("message contains more than basic text and emojis")
+	}
+
+	// Check for absence of attachments or HTML
+	// Simple HTML tags check
+	if strings.Contains(message, "<") && strings.Contains(message, ">") {
+		return errors.New("HTML content detected in the message")
+	}
+
+	return nil
+}
+
+// isBasicTextAndEmojis checks if the string contains only basic text and emojis.
+func isBasicTextAndEmojis(s string) bool {
+	for _, r := range s {
+		if !(unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsPunct(r) || unicode.IsSpace(r) || isEmoji(r)) {
+			return false
+		}
+	}
+	return true
+}
+
+// isEmoji checks if the rune is an emoji.
+// This is a simplistic check and may need more complex logic to handle all emoji cases.
+func isEmoji(r rune) bool {
+	return regexp.MustCompile(`[\x{1F600}-\x{1F64F}]`).MatchString(string(r))
 }
 
 // Message producer (app logic)
