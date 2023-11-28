@@ -10,6 +10,12 @@ type Config struct {
 	SMTP_Token string `yaml:"smtp_token"`
 	SMTP_Server string `yaml:"smtp_server"`
 	SMTP_Port int64 `yaml:"smtp_port"`
+	IMAP_Username string `yaml:"imap_username"`
+	IMAP_Hostname string `yaml:"imap_hostname"`
+	IMAP_Port int64 `yaml:"imap_port"`
+	IMAP_Password string `yaml:"imap_password"`
+	IMAP_Folder string `yaml:"imap_folder"`
+	IMAP_SSL bool `yaml:"imap_ssl"`
 	TEST_Receivers string `yaml:"test_receivers"`
 	Db_Conn_Str string
 	Rabbit_Url string
