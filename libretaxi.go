@@ -54,6 +54,13 @@ func initContext() *context.Context {
 	smtpPort := config.C().SMTP_Port
 	smtpUsername := config.C().SMTP_Username
 	smtpToken := config.C().SMTP_Token
+	imapUsername := config.C().IMAP_Username
+	imapHostname := config.C().IMAP_Hostname
+	imapPort := config.C().IMAP_Port
+	imapPassword := config.C().IMAP_Password
+	imapFolder := config.C().IMAP_Folder
+	imapSSL := config.C().IMAP_SSL
+
 	receiverEmail := config.C().TEST_Receivers
 	//This is the arbitrary max size of an email message
 	//for a Zoleo device
