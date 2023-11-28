@@ -1,3 +1,24 @@
+///This is for ease of use when trying to submit an email message to the ZOLEO device.
+// message := []byte("From: " + smtpUsername + "\r\n" +
+// "To: " + receiverEmail + "\r\n" +
+// "Subject: initContext in libretaxi.go\r\n" +
+// "\r\n" +
+// "This is a test email sent from a Go program.\r\n")
+
+// auth := smtp.PlainAuth("", smtpUsername, smtpToken, smtpServer)
+
+// // Sending email.
+
+// if err := smtp.SendMail(smtpServer+":"+ strconv.FormatInt(smtpPort, 10), auth, smtpUsername, []string{receiverEmail}, message); err != nil {
+// fmt.Println(err)
+// return nil
+// }
+// fmt.Println("Email sent successfully")
+
+/// When retrieving the email via imap ensure that the email has been signed and encrypted.
+///Emails sent to the zoleo devices will be encrypted to ensure that no one is messing with the server and riders
+
+
 package main
 
 import (
