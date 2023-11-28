@@ -48,7 +48,9 @@ func initContext() *context.Context {
 	log.Printf("Using '%s' RabbitMQ connection string", config.C().Rabbit_Url)
 
 	// test message 
-	message := []byte("To: " + receiverEmail + "\r\n" +
+
+	message := []byte("From: " + smtpUsername + "\r\n" +
+					"To: " + receiverEmail + "\r\n" +
 					"Subject: initContext in libretaxi.go\r\n" +
 					"\r\n" +
 					"This is a test email sent from a Go program.\r\n")
