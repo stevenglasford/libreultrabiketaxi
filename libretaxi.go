@@ -286,19 +286,19 @@ func getLocale(languageCode string) *gotext.Locale {
 
 func getEmails() {
 	    // Connect to the server
-		c, err := client.DialTLS("mail.example.com:993", nil)
+		c, err := client.DialTLS(imap_hostname ++ ":" ++ imap_port, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer c.Logout()
 	
 		// Authenticate
-		if err := c.Login("username@example.com", "password"); err != nil {
+		if err := c.Login(imap_username, imap_password); err != nil {
 			log.Fatal(err)
 		}
 	
 		// Select INBOX
-		mbox, err := c.Select("INBOX", false)
+		mbox, err := c.Select(imap_folder, false)
 		if err != nil {
 			log.Fatal(err)
 		}
