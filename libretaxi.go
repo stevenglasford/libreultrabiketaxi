@@ -46,6 +46,7 @@ import (
 	"github.com/emersion/go-imap"
     "github.com/emersion/go-imap/client"
 	"unicode"
+	"io/ioutil"
 )
 
 func initContext() *context.Context {
@@ -54,12 +55,6 @@ func initContext() *context.Context {
 	smtpPort := config.C().SMTP_Port
 	smtpUsername := config.C().SMTP_Username
 	smtpToken := config.C().SMTP_Token
-	imapUsername := config.C().IMAP_Username
-	imapHostname := config.C().IMAP_Hostname
-	imapPort := config.C().IMAP_Port
-	imapPassword := config.C().IMAP_Password
-	imapFolder := config.C().IMAP_Folder
-	imapSSL := config.C().IMAP_SSL
 
 	receiverEmail := config.C().TEST_Receivers
 	//This is the arbitrary max size of an email message
@@ -285,63 +280,78 @@ func getLocale(languageCode string) *gotext.Locale {
 // }
 
 func getEmails() {
-	    // Connect to the server
-		c, err := client.DialTLS(imap_hostname ++ ":" ++ imap_port, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer c.Logout()
-	
-		// Authenticate
-		if err := c.Login(imap_username, imap_password); err != nil {
-			log.Fatal(err)
-		}
-	
-		// Select INBOX
-		mbox, err := c.Select(imap_folder, false)
-		if err != nil {
-			log.Fatal(err)
-		}
-	
-		// Search for specific emails
-		criteria := imap.NewSearchCriteria()
-		criteria.Header.Add("From", "sender@example.com")
-		ids, err := c.Search(criteria)
-		if err != nil {
+	imapUsername := config.C().IMAP_Username
+	imapHostname := config.C().IMAP_Hostname
+	imapPort := config.C().IMAP_Port
+	imapPassword := config.C().IMAP_Password
+	imapFolder := config.C().IMAP_Folder
+	///Need to figure out where to put the SSL flag
+	// imapSSL := config.C().IMAP_SSL 
+	// Connect to the server
+	c, err := client.DialTLS(imapHostname + ":" + strconv.FormatInt(imapPort,10), nil)
+	if err != nil {
 		log.Fatal(err)
+	}
+	defer c.Logout()
+
+	// Authenticate
+	if err := c.Login(imapUsername, imapPassword); err != nil {
+		log.Fatal(err)
+	}
+
+	// Select INBOX
+	// err := c.Select(imapFolder, false)
+	//Use the mbox later for  retrieval of emails
+	mbox, err := c.Select(imapFolder, false)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if mbox.Messages == 0 {
+		log.Println("No messages in mailbox")
+		return
+	}
+
+	// Search for specific emails
+	criteria := imap.NewSearchCriteria()
+	criteria.Header.Add("From", "sender@example.com")
+	ids, err := c.Search(criteria)
+	if err != nil {
+	log.Fatal(err)
+	}
+
+	if len(ids) == 0 {
+		log.Println("No emails found")
+		return
+	}
+
+	// Fetch specific emails
+	seqSet := new(imap.SeqSet)
+	seqSet.AddNum(ids...)
+	section := &imap.BodySectionName{}
+	items := []imap.FetchItem{section.FetchItem()}
+
+	messages := make(chan *imap.Message, 10)
+	go func() {
+		if err := c.Fetch(seqSet, items, messages); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	for msg := range messages {
+		r := msg.GetBody(section)
+		if r == nil {
+			log.Fatal("Server didn't return message body")
 		}
 	
-		if len(ids) == 0 {
-			log.Println("No emails found")
-			return
+		// Read and print the message body
+		if body, err := ioutil.ReadAll(r); err == nil {
+			fmt.Printf("Message Body:\n%s\n", string(body))
+		} else {
+			log.Fatal(err)
 		}
-	
-		// Fetch specific emails
-		seqSet := new(imap.SeqSet)
-		seqSet.AddNum(ids...)
-		section := &imap.BodySectionName{}
-		items := []imap.FetchItem{section.FetchItem()}
-	
-		messages := make(chan *imap.Message, 10)
-		go func() {
-			if err := c.Fetch(seqSet, items, messages); err != nil {
-				log.Fatal(err)
-			}
-		}()
-	
-		for msg := range messages {
-			r := msg.GetBody(section)
-			if r == nil {
-				log.Fatal("Server didn't return message body")
-			}
-		
-			// Read and print the message body
-			if body, err := ioutil.ReadAll(r); err == nil {
-				fmt.Printf("Message Body:\n%s\n", string(body))
-			} else {
-				log.Fatal(err)
-			}
-		}
+	}
 }
 
 func main() {
@@ -349,8 +359,8 @@ func main() {
 	config.Init("libretaxi")
 
 	go main1()
-	// go main2()
-	//go massAnnounce()
+	go getEmails()
+	//go massAnnounce()()
 
 	forever := make(chan bool)
 	<- forever
