@@ -90,6 +90,8 @@ func initContext() *context.Context {
 	}
 	fmt.Println("Email sent successfully")
 
+	getEmails()
+
 	db, err := sql.Open("postgres", config.C().Db_Conn_Str)
 	if err != nil {
 		log.Fatal(err)
