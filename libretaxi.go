@@ -43,6 +43,8 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+	"github.com/emersion/go-imap"
+    "github.com/emersion/go-imap/client"
 	"unicode"
 )
 
@@ -85,15 +87,6 @@ func initContext() *context.Context {
 		return nil
 	}
 	fmt.Println("Email sent successfully")
-	// context := &context.Context{}
-
-	// bot, err := tgbotapi.NewBotAPI(config.C().Telegram_Token)
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-	// bot.Debug = true
-
-	// log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	db, err := sql.Open("postgres", config.C().Db_Conn_Str)
 	if err != nil {
@@ -283,6 +276,66 @@ func getLocale(languageCode string) *gotext.Locale {
 // 		log.Fatal(err)
 // 	}
 // }
+
+func getEmails() {
+	    // Connect to the server
+		c, err := client.DialTLS("mail.example.com:993", nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer c.Logout()
+	
+		// Authenticate
+		if err := c.Login("username@example.com", "password"); err != nil {
+			log.Fatal(err)
+		}
+	
+		// Select INBOX
+		mbox, err := c.Select("INBOX", false)
+		if err != nil {
+			log.Fatal(err)
+		}
+	
+		// Search for specific emails
+		criteria := imap.NewSearchCriteria()
+		criteria.Header.Add("From", "sender@example.com")
+		ids, err := c.Search(criteria)
+		if err != nil {
+		log.Fatal(err)
+		}
+	
+		if len(ids) == 0 {
+			log.Println("No emails found")
+			return
+		}
+	
+		// Fetch specific emails
+		seqSet := new(imap.SeqSet)
+		seqSet.AddNum(ids...)
+		section := &imap.BodySectionName{}
+		items := []imap.FetchItem{section.FetchItem()}
+	
+		messages := make(chan *imap.Message, 10)
+		go func() {
+			if err := c.Fetch(seqSet, items, messages); err != nil {
+				log.Fatal(err)
+			}
+		}()
+	
+		for msg := range messages {
+			r := msg.GetBody(section)
+			if r == nil {
+				log.Fatal("Server didn't return message body")
+			}
+		
+			// Read and print the message body
+			if body, err := ioutil.ReadAll(r); err == nil {
+				fmt.Printf("Message Body:\n%s\n", string(body))
+			} else {
+				log.Fatal(err)
+			}
+		}
+}
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
