@@ -50,7 +50,25 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
+	"bytes"
+	"encoding/json"
 )
+
+type RoutingRequest struct {
+	Client      string `json:"client"`
+	Origin      Coord  `json:"origin"`
+	Destination Coord  `json:"destination"`
+	Waypoints   []Coord `json:"waypoints"`
+	Settings    struct {
+		OptimizeWaypointOrder bool `json:"optimizeWaypointOrder"`
+	} `json:"settings"`
+	Key string `json:"key"`
+}
+
+type Coord struct {
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
+}
 
 func initContext() *context.Context {
 	context := &context.Context{}
@@ -58,6 +76,8 @@ func initContext() *context.Context {
 	smtpPort := config.C().SMTP_Port
 	smtpUsername := config.C().SMTP_Username
 	smtpToken := config.C().SMTP_Token
+	// cyclersUrl := config.C().Cyclers_URL
+	// cyclersKey := config.C().Cyclers_Api_Key
 
 	receiverEmail := config.C().TEST_Receivers
 	//This is the arbitrary max size of an email message
@@ -107,6 +127,8 @@ func initContext() *context.Context {
 	context.Config = config.C()
 	return context
 }
+
+
 
 // ValidateZOLEOMessage validates an email message based on ZOLEO standards.
 func ValidateZOLEOMessage(message string) error {
@@ -391,6 +413,47 @@ func getEmails() {
 			log.Fatal(err)
 		}
 	}
+}
+
+func test_payload() {
+	apiURL := config.C().Cyclers_URL
+	apiKey := config.C().Cyclers_Api_Key
+	payload := RoutingRequest {
+		Client: "IOS",
+		Origin: Coord{Lat: 50.105827, Lon: 14.415478},
+		Destination: Coord{Lat: 50.105827, Lon: 14.415478},
+		Waypoints: []Coord{
+			{Lat: 50.081327, Lon: 14.413480},
+			// Add other waypoints as needed
+		},
+		Key: apiKey,
+	}
+	payload.Settings.OptimizeWaypointOrder = true
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		// handle error
+	}
+
+	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		// handle error
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		// handle error
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+
+	fmt.Println(string(body))
 }
 
 func main() {

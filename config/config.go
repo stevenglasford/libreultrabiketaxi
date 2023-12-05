@@ -19,6 +19,8 @@ type Config struct {
 	TEST_Receivers string `yaml:"test_receivers"`
 	Db_Conn_Str string
 	IMAP_Cert string `yaml:"imap_cert"`
+	Cyclers_Api_Key string `yaml:"cyclers_api_key"`
+	Cyclers_URL string `yaml:"cyclers_url"`
 	Rabbit_Url string
 }
 
