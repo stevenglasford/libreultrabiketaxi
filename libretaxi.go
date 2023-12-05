@@ -55,20 +55,42 @@ import (
 )
 
 type RoutingRequest struct {
-	Client      string `json:"client"`
-	Origin      Coord  `json:"origin"`
-	Destination Coord  `json:"destination"`
-	Waypoints   []Coord `json:"waypoints"`
-	Settings    struct {
-		OptimizeWaypointOrder bool `json:"optimizeWaypointOrder"`
-	} `json:"settings"`
-	Key string `json:"key"`
+	Client             string    `json:"client"`
+	Origin             Location  `json:"origin"`
+	Destination        Location  `json:"destination"`
+	Settings           Settings  `json:"settings"`
+	DepartureDateTime  string    `json:"departureDateTime"`
+	Key                string    `json:"key"`
+	Waypoints          []Location `json:"waypoints"`
+	UID                *string   `json:"uid"` // pointer to handle null value
 }
 
-type Coord struct {
+type Location struct {
+	LocationType string   `json:"locationType"`
+	Point        Point    `json:"point"`
+}
+
+type Point struct {
 	Lat float64 `json:"lat"`
 	Lon float64 `json:"lon"`
 }
+
+type Settings struct {
+	BikeType                string   `json:"bikeType"`
+	AverageSpeed            int      `json:"averageSpeed"`
+	AllowedTransportModes   []string `json:"allowedTransportModes"`
+	Stairs                  string   `json:"stairs"`
+	Pavements               string   `json:"pavements"`
+	Oneways                 string   `json:"oneways"`
+	Traffic                 string   `json:"traffic"`
+	Surface                 string   `json:"surface"`
+	Climbs                  string   `json:"climbs"`
+	BikeSharingProvidersIds []int    `json:"bikeSharingProvidersIds"`
+	DesiredLengthMeters     int      `json:"desiredLengthMeters"`
+	AddRouteGeoJson         bool     `json:"addRouteGeoJson"`
+	OptimizeWaypointOrder   bool     `json:"optimizeWaypointOrder"`
+}
+
 
 func initContext() *context.Context {
 	context := &context.Context{}
@@ -420,9 +442,9 @@ func test_payload() {
 	apiKey := config.C().Cyclers_Api_Key
 	payload := RoutingRequest {
 		Client: "IOS",
-		Origin: Coord{Lat: 50.105827, Lon: 14.415478},
-		Destination: Coord{Lat: 50.105827, Lon: 14.415478},
-		Waypoints: []Coord{
+		Origin: Point{Lat: 50.105827, Lon: 14.415478},
+		Destination: Point{Lat: 50.105827, Lon: 14.415478},
+		Waypoints: []Point{
 			{Lat: 50.081327, Lon: 14.413480},
 			// Add other waypoints as needed
 		},
