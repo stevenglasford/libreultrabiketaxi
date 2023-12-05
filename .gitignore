@@ -20,3 +20,5 @@ libretaxi
 libretaxi.yml
 
 migration/
+#hide your keys
+*.pem
