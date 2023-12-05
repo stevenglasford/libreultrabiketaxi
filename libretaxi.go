@@ -49,6 +49,7 @@ import (
 	"io/ioutil"
 	"crypto/tls"
 	"crypto/x509"
+	"net/http"
 )
 
 func initContext() *context.Context {

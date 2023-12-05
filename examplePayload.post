@@ -1,0 +1,16 @@
+{
+  "client": "IOS",
+  "origin": {"lat": 50.105827, "lon": 14.415478},
+  "destination": {"lat": 50.105827, "lon": 14.415478},
+  "waypoints": [
+    {"lat": 50.081327, "lon": 14.413480},
+    {"lat": 50.079761, "lon": 14.429744},
+    {"lat": 50.086951, "lon": 14.420524},
+    {"lat": 50.075447, "lon": 14.414101},
+    {"lat": 50.086469, "lon": 14.411515}
+   ],
+  "settings": {
+    "optimizeWaypointOrder": true
+  },
+  "key": "cyclers_api_key"
+}
