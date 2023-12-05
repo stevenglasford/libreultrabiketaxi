@@ -151,6 +151,7 @@ func isEmoji(r rune) bool {
 // Message producer (app logic)
 func main1() {
 	context := initContext()
+	log.Println("Starting message producer, rabbitmq, hoppity hop")
 	context.RabbitPublish = rabbit.NewRabbitClient(config.C().Rabbit_Url, "messages")
 
 	// test message 
@@ -214,8 +215,8 @@ func main1() {
 func main2() {
 	context := initContext()
 	context.RabbitConsume = rabbit.NewRabbitClient(config.C().Rabbit_Url, "messages")
-
 	s := sender.NewSender(context)
+	log.Println("Starting message consumer, rabbitmq, hoppity hop")
 	s.Start()
 }
 
@@ -290,14 +291,37 @@ func getEmails() {
 	///Need to figure out where to put the SSL flag
 	// imapSSL := config.C().IMAP_SSL 
 	// Connect to the server
-	c, err := client.DialTLS(imapHostname + ":" + strconv.FormatInt(imapPort,10), nil)
+	log.Printf("Connecting to imap server")
+	c, err := client.Dial(imapHostname + ":" + strconv.FormatInt(imapPort,10))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer c.Logout()
+	// err = c.StartTLS(nil)
+	log.Printf("Establishing TLS connection")
+	if err := c.StartTLS(nil); err != nil {
+		log.Fatal(err)
+	}
 
+	log.Printf("Logging in")
 	// Authenticate
 	if err := c.Login(imapUsername, imapPassword); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Logged in")
+
+	log.Println("Listing mailboxes")
+	mailboxes := make(chan *imap.MailboxInfo, 10)
+	done := make(chan error, 1)
+	go func () {
+		done <- c.List("", "*", mailboxes)
+	}()
+	
+	log.Println("Mailboxes:")
+	for m := range mailboxes {
+		log.Println("* " + m.Name)
+	}
+
+	if err := <- done; err != nil {
 		log.Fatal(err)
 	}
 
