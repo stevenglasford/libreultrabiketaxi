@@ -47,6 +47,8 @@ import (
     "github.com/emersion/go-imap/client"
 	"unicode"
 	"io/ioutil"
+	"crypto/tls"
+	"crypto/x509"
 )
 
 func initContext() *context.Context {
@@ -288,6 +290,7 @@ func getEmails() {
 	imapPort := config.C().IMAP_Port
 	imapPassword := config.C().IMAP_Password
 	imapFolder := config.C().IMAP_Folder
+	imapCert := config.C().IMAP_Cert
 	///Need to figure out where to put the SSL flag
 	// imapSSL := config.C().IMAP_SSL 
 	// Connect to the server
@@ -296,9 +299,18 @@ func getEmails() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// err = c.StartTLS(nil)
+	log.Printf("Using a certificate, from imap_cert %s", imapCert)
+	caCert, err := ioutil.ReadFile(imapCert)
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+	tlsConfig := &tls.Config{
+		RootCAs: caCertPool,
+	}
 	log.Printf("Establishing TLS connection")
-	if err := c.StartTLS(nil); err != nil {
+	if err := c.StartTLS(tlsConfig); err != nil {
 		log.Fatal(err)
 	}
 

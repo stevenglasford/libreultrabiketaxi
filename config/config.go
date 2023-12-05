@@ -18,6 +18,7 @@ type Config struct {
 	IMAP_SSL bool `yaml:"imap_ssl"`
 	TEST_Receivers string `yaml:"test_receivers"`
 	Db_Conn_Str string
+	IMAP_Cert string `yaml:"imap_cert"`
 	Rabbit_Url string
 }
 
