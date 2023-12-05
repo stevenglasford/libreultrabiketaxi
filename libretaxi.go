@@ -460,7 +460,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	config.Init("libretaxi")
 
-	test_payload()
+	go test_payload()
 	// go main1()
 	// go getEmails()
 	/////// go massAnnounce()() ///has not been implemented
