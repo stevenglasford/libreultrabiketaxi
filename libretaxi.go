@@ -460,9 +460,10 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	config.Init("libretaxi")
 
-	go main1()
-	go getEmails()
-	//go massAnnounce()()
+	test_payload()
+	// go main1()
+	// go getEmails()
+	/////// go massAnnounce()() ///has not been implemented
 
 	forever := make(chan bool)
 	<- forever
