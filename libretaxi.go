@@ -66,7 +66,7 @@ type RoutingRequest struct {
 }
 
 type Location struct {
-	LocationType string   `json:"locationType"`
+	// LocationType string   `json:"locationType"`
 	Point        Point    `json:"point"`
 }
 
@@ -442,11 +442,15 @@ func test_payload() {
 	apiKey := config.C().Cyclers_Api_Key
 	payload := RoutingRequest {
 		Client: "IOS",
-		Origin: Point{Lat: 50.105827, Lon: 14.415478},
-		Destination: Point{Lat: 50.105827, Lon: 14.415478},
-		Waypoints: []Point{
-			{Lat: 50.081327, Lon: 14.413480},
+		Origin: Location { Point {Lat: 50.105827, Lon: 14.415478}},
+		Destination: Location {Point {Lat: 50.105827, Lon: 14.415478}},
+		Waypoints: []Location {
+			
+				{Point: Point {Lat: 50.081327, Lon: 14.413480}},
+				
 			// Add other waypoints as needed
+			
+			
 		},
 		Key: apiKey,
 	}
