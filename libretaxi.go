@@ -92,6 +92,33 @@ type Settings struct {
 }
 
 
+//input is a list of strings containing the needed to go 
+//to destinations. It will send the coordinates to the 
+//OSRM server and the OSRM server will determine the best
+//route for the riders to take.
+func getBestRoute(points []string, osrmUrl string){
+	joinedPoints := strings.Join(points, ";")
+	//TODO: fix to add the final point to be the orbiter instead of returning to origin
+	fullUrl := osrmUrl + joinedPoints + "?source=first&destination=last&roundtrip=true"
+	resp, err := http.Get(fullUrl)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	//read the response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	fmt.Println(string(body))
+	// TODO: get the GPX file and send the files to the riders
+		//Can also give the riders an itenary of the destinations to go to 
+}
+
+
 func initContext() *context.Context {
 	context := &context.Context{}
 	smtpServer := config.C().SMTP_Server
@@ -195,6 +222,8 @@ func isEmoji(r rune) bool {
 	return regexp.MustCompile(`[\x{1F600}-\x{1F64F}]`).MatchString(string(r))
 }
 
+
+
 // Message producer (app logic)
 func main1() {
 	context := initContext()
@@ -277,6 +306,112 @@ func getLocale(languageCode string) *gotext.Locale {
 	}
 	return locale
 }
+
+// func addNewUser(userId int64, languageCode string) {
+// 	ctx := &context.Context{}
+// 	db, err := sql.Open("postgres", config.C().Db_Conn_Str)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	} else {
+// 		log.Print("Successfully connected to the database")
+// 	}
+
+// 	ctx.Repo = repository.NewRepository(db)
+// 	ctx.Config = config.C()
+// 	ctx.RabbitPublish = rabbit.NewRabbitClient(config.C().Rabbit_Url, "messages")
+
+// 	locale := getLocale(languageCode)
+// 	link := locale.Get("main.welcome_link")
+// 	text := link + " 👉👉👉 /start 👈👈👈"
+// 	msg := tgbotapi.NewMessage(userId, text)
+
+// 	ctx.RabbitPublish.PublishTgMessage(rabbit.MessageBag{
+// 		Message: msg,
+// 		Priority: 0, // LOWEST
+// 	})
+
+// 	ctx.Repo.DismissCallout(userId, "pt_br_translation_announcement")
+// }
+
+// func sendEmail() {
+// 	smtpServer := config.C().SMTP_Server
+// 	smtpPort := config.C().SMTP_Port
+// 	smtpUsername := config.C().SMTP_Username
+// 	smtpToken := config.C().SMTP_Token
+// 	receiverEmail := config.C().TEST_Receivers
+// 	//This is the arbitrary max size of an email message
+// 	//for a Zoleo device
+// 	// maxEmailCharacterLimit := 200
+
+// 	log.Printf("<<<<<<Start Debug information>>>>>: \n")
+// 	log.Printf("SMTP Host: %s\n", smtpServer)
+// 	log.Printf("SMTP Port: %s\n", smtpPort)
+// 	log.Printf("SMTP Username: %s\n", smtpUsername)
+// 	log.Printf("SMTP Password: %s\n", smtpToken)
+// 	log.Printf("Receiver Email: %s\n", receiverEmail)
+	
+// 	log.Printf("Will be using the email address for sending schedules: '%s',\n", smtpUsername)
+// 	log.Printf("Using '%s' database connection string", config.C().Db_Conn_Str)
+// 	log.Printf("Using '%s' RabbitMQ connection string", config.C().Rabbit_Url)
+
+// 	// test message 
+
+// 	message := []byte("From: " + smtpUsername + "\r\n" +
+// 					"To: " + receiverEmail + "\r\n" +
+// 					"Subject: initContext in libretaxi.go\r\n" +
+// 					"\r\n" +
+// 					"This is a test email sent from a Go program.\r\n")
+
+// 	auth := smtp.PlainAuth("", smtpUsername, smtpToken, smtpServer)
+
+// 	// Sending email.
+	
+// 	if err := smtp.SendMail(smtpServer+":"+ strconv.FormatInt(smtpPort, 10), auth, smtpUsername, []string{receiverEmail}, message); err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	fmt.Println("Email sent successfully")
+// }
+
+// func sendMassEmail() {
+// 	smtpServer := config.C().SMTP_Server
+// 	smtpPort := config.C().SMTP_Port
+// 	smtpUsername := config.C().SMTP_Username
+// 	smtpToken := config.C().SMTP_Token
+// 	receiverEmail := config.C().TEST_Receivers
+// 	//This is the arbitrary max size of an email message
+// 	//for a Zoleo device
+// 	// maxEmailCharacterLimit := 200
+
+// 	log.Printf("<<<<<<Start Debug information>>>>>: \n")
+// 	log.Printf("SMTP Host: %s\n", smtpServer)
+// 	log.Printf("SMTP Port: %s\n", smtpPort)
+// 	log.Printf("SMTP Username: %s\n", smtpUsername)
+// 	log.Printf("SMTP Password: %s\n", smtpToken)
+// 	log.Printf("Receiver Email: %s\n", receiverEmail)
+	
+// 	log.Printf("Will be using the email address for sending schedules: '%s',\n", smtpUsername)
+// 	log.Printf("Using '%s' database connection string", config.C().Db_Conn_Str)
+// 	log.Printf("Using '%s' RabbitMQ connection string", config.C().Rabbit_Url)
+
+// 	// test message 
+
+// 	message := []byte("From: " + smtpUsername + "\r\n" +
+// 					"To: " + receiverEmail + "\r\n" +
+// 					"Subject: initContext in libretaxi.go\r\n" +
+// 					"\r\n" +
+// 					"This is a test email sent from a Go program.\r\n")
+
+// 	auth := smtp.PlainAuth("", smtpUsername, smtpToken, smtpServer)
+
+// 	// Sending email.
+	
+// 	if err := smtp.SendMail(smtpServer+":"+ strconv.FormatInt(smtpPort, 10), auth, smtpUsername, []string{receiverEmail}, message); err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	fmt.Println("Email sent successfully")
+// }
 
 // func massAnnounce() {
 // 	ctx := &context.Context{}
@@ -438,6 +573,26 @@ func getEmails() {
 }
 
 func test_payload() {
+	testPoints := []string{
+		//Randomly generated points in the city of Minneapolis to test the OSRM server
+		"44.9584,-93.2740",
+		"44.9731,-93.2370",
+		"44.9489,-93.2992",
+		"44.9150,-93.2110",
+		"44.9784,-93.2577",
+		"44.9678,-93.2891",
+		"44.9537,-93.3150",
+		"44.9403,-93.3159",
+		"44.9822,-93.2785",
+		"45.0054,-93.2586",
+	}
+
+	log.Printf("<<<<<<Coordinate information from OSRM>>>>>: \n")
+
+	getBestRoute(testPoints,config.C().Osrm_Url)
+
+	log.Printf("<<<<<<Coordinate information from osrm>>>>>: \n")
+
 	apiURL := config.C().Cyclers_URL
 	apiKey := config.C().Cyclers_Api_Key
 	payload := RoutingRequest {

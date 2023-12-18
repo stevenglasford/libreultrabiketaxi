@@ -22,6 +22,7 @@ type Config struct {
 	Cyclers_Api_Key string `yaml:"cyclers_api_key"`
 	Cyclers_URL string `yaml:"cyclers_url"`
 	Rabbit_Url string
+	Osrm_Url string "yaml:osrm_url"
 }
 
 var config Config
